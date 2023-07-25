@@ -61,6 +61,8 @@ const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
+let currentAccount;
+
 const displayMovments = function (movements) {
   containerMovements.innerHTML = '';
   movements.forEach(function (movement, index) {
@@ -75,35 +77,29 @@ const displayMovments = function (movements) {
   });
 };
 
-displayMovments(account1.movements);
-
 const calcDisplayBalance = function (movements) {
   const totalBalance = movements.reduce((acc, cur) => acc + cur, 0);
   labelBalance.textContent = `${totalBalance}€`;
 };
 
-calcDisplayBalance(account1.movements);
-
-const calcDisplaySummary = function (movements) {
-  const income = movements
+const calcDisplaySummary = function (account) {
+  const income = account.movements
     .filter(mov => mov > 0)
     .reduce((acc, mov) => acc + mov, 0);
   labelSumIn.textContent = `${income}€`;
 
-  const outcome = movements
+  const outcome = account.movements
     .filter(mov => mov < 0)
     .reduce((acc, mov) => acc + mov, 0);
   labelSumOut.textContent = `${Math.abs(outcome)}€`;
 
-  const interset = movements
+  const interset = account.movements
     .filter(mov => mov > 0)
-    .map(mov => (mov * 1.2) / 100)
+    .map(mov => (mov * account.interestRate) / 100)
     .filter(mov => mov >= 1)
     .reduce((acc, cur) => acc + cur, 0);
   labelSumInterest.textContent = `${interset}€`;
 };
-
-calcDisplaySummary(account1.movements);
 
 const createUsernames = function (accounts) {
   accounts.forEach(function (account) {
@@ -116,6 +112,31 @@ const createUsernames = function (accounts) {
 };
 
 createUsernames(accounts);
+
+btnLogin.addEventListener('click', function (event) {
+  event.preventDefault();
+  currentAccount = accounts.find(
+    acc => acc.username === inputLoginUsername.value
+  );
+
+  if (currentAccount?.pin === Number(inputLoginPin.value)) {
+    // Welocme message
+    labelWelcome.textContent = `Welcome back, ${
+      currentAccount.owner.split(' ')[0]
+    }`;
+
+    // Display movments
+    containerApp.style.opacity = 100;
+    displayMovments(currentAccount.movements);
+    calcDisplayBalance(currentAccount.movements);
+    calcDisplaySummary(currentAccount);
+  }
+
+  // Hide input fields
+  inputLoginUsername.value = inputLoginPin.value = '';
+  inputLoginPin.blur();
+});
+
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 // LECTURES
