@@ -161,6 +161,25 @@ btnTransfer.addEventListener('click', function (event) {
   inputTransferAmount.blur();
 });
 
+btnClose.addEventListener('click', function (event) {
+  event.preventDefault();
+
+  if (
+    inputCloseUsername.value === currentAccount.username &&
+    Number(inputClosePin.value) === currentAccount.pin
+  ) {
+    containerApp.style.opacity = 0;
+    labelWelcome.textContent = 'Log in to get started';
+
+    const index = accounts.findIndex(
+      acc => acc.username === currentAccount.username
+    );
+    accounts.splice(index, 1);
+  }
+  inputCloseUsername.value = inputClosePin.value = '';
+  inputClosePin.blur();
+});
+
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 // LECTURES
