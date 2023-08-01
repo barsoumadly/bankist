@@ -75,18 +75,25 @@ const inputClosePin = document.querySelector('.form__input--pin');
 
 let currentAccount;
 
-const displayMovments = function (movements, sort = false) {
+const displayMovments = function (account, sort = false) {
   containerMovements.innerHTML = '';
 
-  let movs = movements.slice();
-  movs = sort ? movs.sort((a, b) => a - b) : movements;
+  let movs = account.movements.slice();
+  movs = sort ? movs.sort((a, b) => a - b) : account.movements;
 
   movs.forEach(function (movement, index) {
     const type = movement > 0 ? 'deposit' : 'withdrawal';
+    const date = new Date(account.movementsDates[index]);
+    const day = `${date.getDate()}`.padStart(2, 0);
+    const month = `${date.getMonth() + 1}`.padStart(2, 0);
+    const year = date.getFullYear();
+    const displayDate = `${day}/${month}/${year}`;
+
     const html = ` <div class="movements__row">
     <div class="movements__type movements__type--${type}">${
       index + 1
     } ${type}</div>
+    <div class="movements__date">${displayDate}</div>
     <div class="movements__value">${movement.toFixed(2)}€</div>
   </div>`;
     containerMovements.insertAdjacentHTML('afterbegin', html);
@@ -130,7 +137,7 @@ const createUsernames = function (accounts) {
 createUsernames(accounts);
 
 const updateUI = function (account) {
-  displayMovments(account.movements);
+  displayMovments(account);
   calcDisplayBalance(account);
   calcDisplaySummary(account);
 };
@@ -181,6 +188,8 @@ btnTransfer.addEventListener('click', function (event) {
   ) {
     currentAccount.movements.push(-amount);
     receiverAccount.movements.push(amount);
+    currentAccount.movementsDates.push(new Date().toISOString());
+    receiverAccount.movementsDates.push(new Date().toISOString());
     updateUI(currentAccount);
   }
   inputTransferAmount.value = inputTransferTo.value = '';
@@ -193,6 +202,7 @@ btnLoan.addEventListener('click', function (event) {
 
   if (amount > 0 && currentAccount.movements.some(mov => mov >= amount * 0.1)) {
     currentAccount.movements.push(amount);
+    currentAccount.movementsDates.push(new Date().toISOString());
     updateUI(currentAccount);
   }
   inputLoanAmount.value = '';
@@ -222,7 +232,7 @@ let isSorted = false;
 
 btnSort.addEventListener('click', function (event) {
   event.preventDefault();
-  displayMovments(currentAccount.movements, !isSorted);
+  displayMovments(currentAccount, !isSorted);
   isSorted = !isSorted;
 });
 
