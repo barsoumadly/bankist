@@ -75,7 +75,7 @@ const inputClosePin = document.querySelector('.form__input--pin');
 
 let currentAccount;
 
-const formatDate = function (date) {
+const formatDate = function (date, locale) {
   const calcDaysPassed = (date1, date2) =>
     Math.round(Math.abs((date1 - date2) / (1000 * 60 * 60 * 24)));
 
@@ -87,11 +87,12 @@ const formatDate = function (date) {
   } else if (daysPassed <= 7) {
     return `${daysPassed} days ago`;
   } else {
-    const day = `${date.getDate()}`.padStart(2, 0);
-    const month = `${date.getMonth() + 1}`.padStart(2, 0);
-    const year = date.getFullYear();
-    const displayDate = `${day}/${month}/${year}`;
-    return displayDate;
+    // const day = `${date.getDate()}`.padStart(2, 0);
+    // const month = `${date.getMonth() + 1}`.padStart(2, 0);
+    // const year = date.getFullYear();
+    // const displayDate = `${day}/${month}/${year}`;
+    // return displayDate;
+    return new Intl.DateTimeFormat(locale).format(date);
   }
 };
 
@@ -104,7 +105,7 @@ const displayMovments = function (account, sort = false) {
   movs.forEach(function (movement, index) {
     const type = movement > 0 ? 'deposit' : 'withdrawal';
     const date = new Date(account.movementsDates[index]);
-    const displayDate = formatDate(date);
+    const displayDate = formatDate(date, account.locale);
 
     const html = ` <div class="movements__row">
     <div class="movements__type movements__type--${type}">${
@@ -177,13 +178,24 @@ btnLogin.addEventListener('click', function (event) {
 
     // Display current date
     const now = new Date();
-    const day = `${now.getDate()}`.padStart(2, 0);
-    const month = `${now.getMonth() + 1}`.padStart(2, 0);
-    const year = now.getFullYear();
-    const hour = `${now.getHours()}`.padStart(2, 0);
-    const minutes = `${now.getMinutes()}`.padStart(2, 0);
+    // const day = `${now.getDate()}`.padStart(2, 0);
+    // const month = `${now.getMonth() + 1}`.padStart(2, 0);
+    // const year = now.getFullYear();
+    // const hour = `${now.getHours()}`.padStart(2, 0);
+    // const minutes = `${now.getMinutes()}`.padStart(2, 0);
 
-    labelDate.textContent = `${day}/${month}/${year}, ${hour}:${minutes}`;
+    const options = {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+    };
+
+    labelDate.textContent = Intl.DateTimeFormat(
+      currentAccount.locale,
+      options
+    ).format(now);
   }
 
   // Hide input fields
