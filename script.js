@@ -102,7 +102,7 @@ const displayMovments = function (account, sort = false) {
 
 const calcDisplayBalance = function (account) {
   account.totalBalance = account.movements.reduce((acc, cur) => acc + cur, 0);
-  labelBalance.textContent = `${account.totalBalance}€`;
+  labelBalance.textContent = `${account.totalBalance.toFixed(2)}€`;
 };
 
 const calcDisplaySummary = function (account) {
