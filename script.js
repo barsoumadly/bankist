@@ -96,6 +96,13 @@ const formatDate = function (date, locale) {
   }
 };
 
+const formatCurrency = function (value, locale, currency) {
+  return new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency: currency,
+  }).format(value);
+};
+
 const displayMovments = function (account, sort = false) {
   containerMovements.innerHTML = '';
 
@@ -107,12 +114,18 @@ const displayMovments = function (account, sort = false) {
     const date = new Date(account.movementsDates[index]);
     const displayDate = formatDate(date, account.locale);
 
+    const formattedMov = formatCurrency(
+      movement,
+      account.locale,
+      account.currency
+    );
+
     const html = ` <div class="movements__row">
     <div class="movements__type movements__type--${type}">${
       index + 1
     } ${type}</div>
     <div class="movements__date">${displayDate}</div>
-    <div class="movements__value">${movement.toFixed(2)}€</div>
+    <div class="movements__value">${formattedMov}</div>
   </div>`;
     containerMovements.insertAdjacentHTML('afterbegin', html);
   });
@@ -120,26 +133,43 @@ const displayMovments = function (account, sort = false) {
 
 const calcDisplayBalance = function (account) {
   account.totalBalance = account.movements.reduce((acc, cur) => acc + cur, 0);
-  labelBalance.textContent = `${account.totalBalance.toFixed(2)}€`;
+  const formattedBalance = formatCurrency(
+    account.totalBalance,
+    account.locale,
+    account.currency
+  );
+  labelBalance.textContent = `${formattedBalance}`;
 };
 
 const calcDisplaySummary = function (account) {
   const income = account.movements
     .filter(mov => mov > 0)
     .reduce((acc, mov) => acc + mov, 0);
-  labelSumIn.textContent = `${income.toFixed(2)}€`;
+  labelSumIn.textContent = formatCurrency(
+    income,
+    account.locale,
+    account.currency
+  );
 
   const outcome = account.movements
     .filter(mov => mov < 0)
     .reduce((acc, mov) => acc + mov, 0);
-  labelSumOut.textContent = `${Math.abs(outcome.toFixed(2))}€`;
+  labelSumOut.textContent = formatCurrency(
+    outcome,
+    account.locale,
+    account.currency
+  );
 
   const interset = account.movements
     .filter(mov => mov > 0)
     .map(mov => (mov * account.interestRate) / 100)
     .filter(mov => mov >= 1)
     .reduce((acc, cur) => acc + cur, 0);
-  labelSumInterest.textContent = `${interset.toFixed(2)}€`;
+  labelSumInterest.textContent = formatCurrency(
+    interset,
+    account.locale,
+    account.currency
+  );
 };
 
 const createUsernames = function (accounts) {
