@@ -74,6 +74,7 @@ const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
 let currentAccount;
+let timer;
 
 const formatDate = function (date, locale) {
   const calcDaysPassed = (date1, date2) =>
@@ -190,6 +191,23 @@ const updateUI = function (account) {
   calcDisplaySummary(account);
 };
 
+const startLoginTimer = function () {
+  let time = 120;
+  const timerBegin = () => {
+    const minutes = String(Math.trunc(time / 60)).padStart(2, 0);
+    const seconds = String(time % 60).padStart(2, 0);
+    labelTimer.textContent = `${minutes}:${seconds}`;
+    if (time === 0) {
+      clearInterval(timer);
+      containerApp.style.opacity = 0;
+      labelWelcome.textContent = 'Log in to get started';
+    }
+    time--;
+  };
+  timerBegin();
+  timer = setInterval(timerBegin, 1000);
+};
+
 btnLogin.addEventListener('click', function (event) {
   event.preventDefault();
   currentAccount = accounts.find(
@@ -205,6 +223,9 @@ btnLogin.addEventListener('click', function (event) {
     // Display movments
     containerApp.style.opacity = 100;
     updateUI(currentAccount);
+
+    // Display Timer
+    startLoginTimer();
 
     // Display current date
     const now = new Date();
@@ -250,6 +271,8 @@ btnTransfer.addEventListener('click', function (event) {
     currentAccount.movementsDates.push(new Date().toISOString());
     receiverAccount.movementsDates.push(new Date().toISOString());
     updateUI(currentAccount);
+    clearInterval(timer);
+    timer = startLoginTimer();
   }
   inputTransferAmount.value = inputTransferTo.value = '';
   inputTransferAmount.blur();
@@ -265,6 +288,8 @@ btnLoan.addEventListener('click', function (event) {
       currentAccount.movementsDates.push(new Date().toISOString());
       updateUI(currentAccount);
     }, 3000);
+    clearInterval(timer);
+    timer = startLoginTimer();
   }
   inputLoanAmount.value = '';
   inputLoanAmount.blur();
